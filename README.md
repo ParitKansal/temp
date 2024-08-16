@@ -5,60 +5,6 @@
 
 2. **Examples:**
 
-   **Functional Dependency Holds (✅):**
-    |**A**|**B**|
-    |--|--|
-    |A1|B1|
-    |A2|B2|
-    |A1|B1|
-   
-
-   **Functional Dependency Doesn't Hold (❌):**
-    |**A**  |**B**  |
-    |-------|-------|
-    |A1     |B1     |
-    |A2     |B2     |
-    |A1     |B3     |
-   
-   Because A1 is associated with more than one value in B
-
-3. **Functional Dependency with Keys:**
-   - If α is a key, then α → β always holds for any attribute β.
-
-4. **Closure of an Attribute:**
-   - Given relation R(A, B, C, D) and functional dependencies : {A → B, A → D, B → C}
-   
-   **Attribute Closures:**
-   - $A^+$ = {A, B, C, D}
-   - $B^+$ = {B, C}
-   - $C^+$ = {C}
-   - $D^+$ = {D}
-
-5. **Trivial Functional Dependency:**
-   - A functional dependency A → A is always satisfied (trivial).
-
-6. **Armstrong’s Axioms:**
-   - **Reflexivity Rule:** A → B holds if B ⊆ A.
-   - **Augmentation Rule:** If A → B, then αA → αB holds for any set α.
-   - **Transitivity Rule:** If A → B and C → D, then A → D holds.
-
-7. **Additional Rules:**
-   - **Union Rule:** If A → B and A → C, then A → BC holds.
-   - **Decomposition Rule:** If A → BC, then A → B and A → C hold.
-
-8. **Closure of a Set of Functional Dependencies:**
-   - To find all possible functional dependencies from a given set, compute the closure of the attribute sets using Armstrong’s axioms and additional rules. 
-Here's the organized summary of normalization with headings and the normalization process:
-
----
-
-**Functional Dependency Summary:**
-
-1. **Definition:**
-   - **Functional Dependency (FD):** For a relation R and attributes A B in R, B is functionally dependent on A (denoted A → B) if each value of A is associated with exactly one value in B in R.
-
-2. **Examples:**
-
 <div style="text-align: center;">
 
 <table style="margin-left: auto; margin-right: auto;">
@@ -154,24 +100,95 @@ Here's the organized summary of normalization with headings and the normalizatio
 
 **Normalization Forms:**
 
-| **Normalization Process**             | **Process**|
-|---------------------------------------|-|
-| **Unnormalized relation**             | |
-| |Removing repeating groups(multi valued attributes)             |
-| **First Normal Form (1NF)**           | |
-| | Removing partial dependency.|
-| |Partial dependency occurs when a non-key(also known as non-prime) attribute is functionally dependent on only a part of any Composite key(also known as combination of prime attributes), rather than on the entire key.|
-| **Second Normal Form (2NF)**          | |
-| | Removing transitive dependency        |
-| | Make sure that no non-prime attribute is tranisitivily dependent on key|
-| **Third Normal Form (3NF)**           | |
-| | Removing overlapping candidate keys   |
-| | every functional dependency A->B, A should be a key in relation|
-| **Boyce-Codd Normal Form (BCNF)**     | |
-| | Removing multi-valued dependency      |
-| **Fourth Normal Form (4NF)**          | |
-| | Removing non-implied dependency       |
-| **Fifth Normal Form (5NF)**           | |
+<table border="1">
+  <thead>
+    <tr>
+      <th>Normalization Process</th>
+      <th>Process of Transforming</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Unnormalized Relation</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <ul style="list-style-type:none;">
+          <li>Removing repeating groups (multi-valued attributes)</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>First Normal Form (1NF)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <ul style="list-style-type:none;">
+          <li>Removing partial dependency.</li>
+          <li>Partial dependency occurs when a non-key (also known as non-prime) attribute is functionally dependent on only a part of any Composite key (also known as combination of prime attributes), rather than on the entire key.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Second Normal Form (2NF)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <ul style="list-style-type:none;">
+          <li>Removing transitive dependency.</li>
+          <li>Make sure that no non-prime attribute is transitively dependent on the key.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Third Normal Form (3NF)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <ul style="list-style-type:none;">
+          <li>Removing overlapping candidate keys.</li>
+          <li>For every functional dependency A -> B, A should be a key in the relation.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Boyce-Codd Normal Form (BCNF)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <ul style="list-style-type:none;">
+          <li>Removing multi-valued dependency.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Fourth Normal Form (4NF)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <ul style="list-style-type:none;">
+          <li>Removing non-implied dependency.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Fifth Normal Form (5NF)</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 **Types of Decomposition:**
