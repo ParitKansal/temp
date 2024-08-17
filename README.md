@@ -700,3 +700,175 @@ Then S schedule is Serializable
     </tr>
 </table>
 
+## Types of locks
+
+**Shared Loack** : Used for read operation and multiple read operations are allowed
+
+**Exclusive Loacks** : Used for write operation and single write operation is allowed
+
+| |**Shared Lock can be taken** |**Exclusive Lock can be taken** |
+|-|-|-|
+|**Shared Lock Already Applied**|✔️|❌|
+|**Exclusive Lock Already Applied**|❌|❌|
+
+### Multiple Share Locks With Starvation
+
+| Variable | Available (0/1) | Mode (Exclusive/Shared) | Count (Number of Transactions on which Lock is Applied) | Blocked Transaction (Queue) |
+|----------|-----------------|-------------------------|--------------------------------------------------------|-----------------------------|
+| x        |                 |                         |                                                        |                             |
+| y        |                 |                         |                                                        |                             |
+| z        |                 |                         |                                                        |                             |
+        
+
+### Multiple Share Locks Without Starvation
+If a item is has a shared lock and a transaction is blocked and queued in Blocked Transaction queue(i.e. is in need for Write operation) then we do not allow any other transaction to apply shared lock on the same item i.e. do not allow to increase Count
+
+| Variable | Available (0/1) | Mode (Exclusive/Shared) | Count (Number of Transactions on which Lock is Applied) | Blocked Transaction (Queue) |
+|----------|-----------------|-------------------------|--------------------------------------------------------|-----------------------------|
+| x        |                 |                         |                                                        |                             |
+| y        |                 |                         |                                                        |                             |
+| z        |                 |                         |                                                        |                             |
+
+### Lock Upgrade
+Lock can be Upgraded from schared Lock to Exclusive Lock if count == 1 and Lock is upgrated for same transaction.
+<table>
+    <tr>
+        <td><strong>T1</strong></td>
+        <td>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Mode</th>
+                    <th>Count</th>
+                    <th>Blocked Transaction</th>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>[...</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>R(x)</td>
+        <td>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Mode</th>
+                    <th>Count</th>
+                    <th>Blocked Transaction</th>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>0</td>
+                    <td>Shared</td>
+                    <td>1</td>
+                    <td>[...</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>W(x)</td>
+        <td>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Mode</th>
+                    <th>Count</th>
+                    <th>Blocked Transaction</th>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>0</td>
+                    <td>Exclusive</td>
+                    <td>1</td>
+                    <td>[...</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+### Lock Downgrade
+Lock can be Downgraded from Exclusive Lock to Shared Lock if count == 1 and Lock is downgraded for same transaction.
+<table>
+    <tr>
+        <td><strong>T1</strong></td>
+        <td>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Mode</th>
+                    <th>Count</th>
+                    <th>Blocked Transaction</th>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>0</td>
+                    <td></td>
+                    <td>0</td>
+                    <td>[...</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>W(x)</td>
+        <td>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Mode</th>
+                    <th>Count</th>
+                    <th>Blocked Transaction</th>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>0</td>
+                    <td>Exclusive</td>
+                    <td>1</td>
+                    <td>[...</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>R(x)</td>
+        <td>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Mode</th>
+                    <th>Count</th>
+                    <th>Blocked Transaction</th>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>0</td>
+                    <td>Shared</td>
+                    <td>1</td>
+                    <td>[...</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+## Problems with Locks
+Unrepeatable read problem
+|T1|T2|
+|--|--|
+|R(x)||
+||W(x)|
+|R(x)||
