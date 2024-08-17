@@ -1,213 +1,702 @@
-**Functional Dependency Summary:**
+## Schedule
+Collection of multiple transitions running on same database
 
-1. **Definition:**
-   - **Functional Dependency (FD):** For a relation R and attributes A B in R, B is functionally dependent on A (denoted A → B) if each value of A is associated with exactly one value in B in R.
+## Why Concurrency
+- improve throughput
+- resource utilization
+- reduced wating time
 
-2. **Examples:**
+## Problems With Concurrency 
+- Recoverability problems 
+- Deadlock 
+- Serializability Issues
 
-<div style="text-align: center;">
+## Dirty read / Temporary Update Problem
+Read the wrong value
 
-<table style="margin-left: auto; margin-right: auto;">
-  <tr>
-    <th>Functional Dependency Holds (✅)</th>
-    <th>Functional Dependency Doesn't Hold (❌)</th>
-  </tr>
-  <tr>
-    <td>
-      <table style="margin-left: auto; margin-right: auto;">
+|T1|T2|
+|-|-|
+|R(x)| |
+|x=x+2| |
+|W(x)||
+||R(x)|
+|failed||
+
+## panthon Read
+first value exist then it do not exist
+|T1|T2|
+|--|--|
+|R(x)||
+||R(x)|
+|delete(x)||
+||R(x)|
+
+## Ureapeatable Problem
+first x shows some value but at point of time it shows other value
+|T1|T2|
+|--|--|
+|R(x)||
+||R(x)|
+|x = x+5||
+|W(x)||
+||R(x)|
+
+## Lost Update
+update get lost
+|T1|T2|
+|--|--|
+|R(x)||
+|x = x+5||
+|W(x)||
+||x = x + 5|
+||W(x)|
+||Commit|
+|failed(Rollback)||
+
+
+## Incorrect summary problem
+|T1|T2|
+|--|--|
+|R(x)||
+|x=x+5||
+|W(x)||
+||R(x)|
+||R(y)|
+||Sum=x+y|
+||W(Sum)|
+|R(y)||
+|y=y+5||
+|W(y)||
+- Sum when T1 is exectued first and then T2 executed ≠ Sum when T2 is exectued first and then T1 executed ≠ if exectued like above
+
+## Good Vs Bad Schedule
+Good Schedule gives consistent result
+
+## Serial Vs Non - Serial(concurrent) Schedule
+<table>
         <tr>
-          <th>A</th>
-          <th>B</th>
+            <th>Non - Serial</th>
+            <th>Serial</th>
         </tr>
         <tr>
-          <td>A1</td>
-          <td>B1</td>
+            <td>
+                <table class="nested-table">
+                    <tr>
+                        <th>T1</th>
+                        <th>T2</th>
+                    </tr>
+                    <tr>
+                        <td>R(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>x=x+5</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>W(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>R(x)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>R(y)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Sum=x+y</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>W(Sum)</td>
+                    </tr>
+                    <tr>
+                        <td>R(y)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>y=y+5</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>W(y)</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table class="nested-table">
+                    <tr>
+                        <th>T1</th>
+                        <th>T2</th>
+                    </tr>
+                    <tr>
+                        <td>R(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>x=x+5</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>W(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>R(y)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>y=y+5</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>W(y)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>R(x)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>R(y)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>Sum=x+y</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>W(Sum)</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+
+## Serializable Schedule
+A concurrent Schedule which provide result as any one Serial schedule
+
+if a Schedule S
+|T1|T2|T3|
+|--|--|--|
+|...| | |
+|...| | |
+| |...| |
+| | |...|
+| | |...|
+|...| | |
+| |...| |
+
+Total Possible Schedules = 3!
+i.e. (T1, T2, T3), (T1, T3, T2), (T2, T1, T3), (T2, T3, T1), (T3, T1, T2), (T3, T2, T1)
+
+if S ≡ S' in all possible Schedules
+
+Then S schedule is Serializable
+## Conflict Serializability
+### Conflict
+    Databases statements are conflicting if and only if:
+    1. Both are in different transactions 
+    2. Both are accessing the same data item 
+    3. Atleast one of them is write operation
+
+### Conflict Equivalent
+
+| T1 | T2 |
+|----|----|
+|R(x)|    |
+|    |W(x)|
+|    |R(y)|
+|R(z)|    |
+|    |W(z)|
+|R(y)|    |
+
+- R(x)--->W(x)
+- R(z)--->W(z)
+
+| T1 | T2 |
+|----|----|
+|R(x)|    |
+|    |W(x)|
+|R(z)|    |
+|    |R(y)|
+|R(y)|    |
+|    |W(z)|
+
+- R(x)--->W(x)
+- R(z)--->W(z)
+### Conflict Serializabllty
+    A schedule is called confilct serializable if it is conflict equivalent to any serial schedule. .
+
+    Given a concurrent Schedule S.
+    Find a Serial Schedule S', such that S ≅ S' (S and S' Conflict Equivalent)
+    Then S is Conflict Serializable. 
+
+<table>
+        <tr>
+            <th>Example</th>
+            <th>Imp Points</th>
+            <th>Possible Serial Schedule</th>
         </tr>
         <tr>
-          <td>A2</td>
-          <td>B2</td>
+            <td>
+                <table>
+                    <tr>
+                        <th>T1</th>
+                        <th>T2</th>
+                        <th>T3</th>
+                    </tr>
+                    <tr>
+                        <td>R(x)</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>W(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>R(y)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>W(y)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>R(y)</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <img src="https://i.ibb.co/qDfhjQh/xp-Gw-Rp-Cbiyui-Dhxr.png" alt="Precedence Graph">
+            </td>
+            <td>
+                NaN
+            </td>
         </tr>
         <tr>
-          <td>A1</td>
-          <td>B1</td>
+            <td>
+                <table>
+                    <tr>
+                        <th>T1</th>
+                        <th>T2</th>
+                        <th>T3</th>
+                        <th>T4</th>
+                    </tr>
+                    <tr>
+                        <td>R(A)</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>W(B)</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>R(B)</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>R(C)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>W(A)</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>R(A)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>R(C)</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>W(A)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>W(B)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>R(B)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>W(C)</td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <img src="https://i.ibb.co/3FpHYtG/Ov-Yxvvvkvxm-Cns-Jg.png" alt="Serializability Schedule">
+            </td>
+            <td>
+                T1 → T2 → T3 → T3
+            </td>
         </tr>
-      </table>
-    </td>
-    <td>
-      <table style="margin-left: auto; margin-right: auto;">
-        <tr>
-          <th>A</th>
-          <th>B</th>
-        </tr>
-        <tr>
-          <td>A1</td>
-          <td>B1</td>
-        </tr>
-        <tr>
-          <td>A2</td>
-          <td>B2</td>
-        </tr>
-        <tr>
-          <td>A1</td>
-          <td>B2</td>
-        </tr>
-      </table>
-      <p>Because A1 is associated with more than one value in B</p>
-    </td>
-  </tr>
+    </table>
+
+## View Serializability(≆)
+
+    Points to Remember for evey data item
+    1. Who reads from database 
+    2. Who reads from other's written value 
+    3. Who writes last
+
+### View Serializabllty
+    A schedule is called confilct serializable if it is view equivalent to any serial schedule.
+
+    Given a concurrent Schedule S.
+    Find a Serial Schedule S', such that S ≅ S' (S and S' View Equivalent) 
+    Then S is View Serializable. 
+
+<table>
+    <tr>
+        <th>Example</th>
+        <th>Imp Points</th>
+        <th>Possible Serial Schedule</th>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td>T1</td>
+                    <td>T2</td>
+                    <td>T3</td>
+                    <td>T4</td>
+                </tr>
+                <tr>
+                    <td>------</td>
+                    <td>------</td>
+                    <td>------</td>
+                    <td>------</td>
+                </tr>
+                <tr>
+                    <td>W(X)</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>R(X)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>W(X)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>W(X)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>W(X)</td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <ul>
+                <li>T4 write last</li>
+                <li>T2 read after T1 write</li>
+            </ul>
+            <img src="https://i.ibb.co/QfcmzF5/ue-IGflov-Avbm-Yoy-K.png" alt="Image">
+        </td>
+        <td>
+            <ul>
+                <li>T3 → T1 → T2 → T4</li>
+                <li>T1 → T3 → T2 → T4</li>
+                <li>T1 → T2 → T3 → T4</li>
+               <li>Check each Schedule</li>
+            </ul>
+        </td>
+    </tr>
 </table>
 
-</div>
-
-3. **Functional Dependency with Keys:**
-   - If α is a key, then α → β always holds for any attribute β.
-
-4. **Closure of an Attribute:**
-   - Given relation R(A, B, C, D) and functional dependencies : {A → B, A → D, B → C}
-   
-   **Attribute Closures:**
-   - $A^+$ = {A, B, C, D}
-   - $B^+$ = {B, C}
-   - $C^+$ = {C}
-   - $D^+$ = {D}
-
-5. **Trivial Functional Dependency:**
-   - A functional dependency A → A is always satisfied (trivial).
-
-6. **Armstrong’s Axioms:**
-   - **Reflexivity Rule:** A → B holds if B ⊆ A.
-   - **Augmentation Rule:** If A → B, then αA → αB holds for any set α.
-   - **Transitivity Rule:** If A → B and C → D, then A → D holds.
-
-7. **Additional Rules:**
-   - **Union Rule:** If A → B and A → C, then A → BC holds.
-   - **Decomposition Rule:** If A → BC, then A → B and A → C hold.
-
-8. **Closure of a Set of Functional Dependencies:**
-   - To find all possible functional dependencies from a given set, compute the closure of the attribute sets using Armstrong’s axioms and additional rules.
-  
-
-**Normalization**
-
-- **Definition:** Normalization is the process of minimizing redundancy in a relation or set of relations.
-- **Purpose:** Redundancy in a relation may cause insertion, deletion, and update anomalies.
-- **Process:** It involves grouping attributes into well-structured relations that contain minimal redundancy.
-- **Focus:** It emphasizes the characteristics of specific entities.
-
-**Essence of Normalization:** One relation should have one theme.
-
----
-
-**Normalization Forms:**
-
-<table border="1">
-  <thead>
+## Recoverable Schedule 
+    When no any committed transaction should be rolled back.
+<table>
     <tr>
-      <th>Normalization Process</th>
-      <th>Process of Transforming</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Unnormalized Relation</td>
-      <td></td>
+       <th>Non-Recoverable Schedule</th>
+       <th>Recoverable Schedule</th>
     </tr>
     <tr>
-      <td></td>
-      <td>
-        <ul style="list-style-type:none;">
-          <li>Removing repeating groups (multi-valued attributes)</li>
-        </ul>
-      </td>
+       <td>
+         <table>
+            <tr>
+               <th>T1</th>
+               <th>T2</th>
+            </tr>
+            <tr>
+               <td>R(x)</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td>x = x + 2</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td>W(x)</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>R(x)</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>x = x + 5</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>W(x)</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td></td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>Commit</td>
+            </tr>
+            <tr>
+               <td>failed</td>
+               <td></td>
+            </tr>
+         </table>
+       </td>
+       <td>
+         <table>
+            <tr>
+               <th>T1</th>
+               <th>T2</th>
+            </tr>
+            <tr>
+               <td>R(x)</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td>x = x + 2</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td>W(x)</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>R(x)</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>x = x + 5</td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>W(x)</td>
+            </tr>
+            <tr>
+               <td>Commit</td>
+               <td></td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>Commit</td>
+            </tr>
+         </table>
+       </td>
     </tr>
-    <tr>
-      <td>First Normal Form (1NF)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <ul style="list-style-type:none;">
-          <li>Removing partial dependency.</li>
-          <li>Partial dependency occurs when a non-key (also known as non-prime) attribute is functionally dependent on only a part of any Composite key (also known as combination of prime attributes), rather than on the entire key.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>Second Normal Form (2NF)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <ul style="list-style-type:none;">
-          <li>Removing transitive dependency.</li>
-          <li>Make sure that no non-prime attribute is transitively dependent on the key.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>Third Normal Form (3NF)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <ul style="list-style-type:none;">
-          <li>Removing overlapping candidate keys.</li>
-          <li>For every functional dependency A -> B, A should be a key in the relation.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>Boyce-Codd Normal Form (BCNF)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <ul style="list-style-type:none;">
-          <li>Removing multi-valued dependency.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>Fourth Normal Form (4NF)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <ul style="list-style-type:none;">
-          <li>Removing non-implied dependency.</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>Fifth Normal Form (5NF)</td>
-      <td></td>
-    </tr>
-  </tbody>
 </table>
 
----
-**Types of Decomposition:**
+## Types of Rollback
+<table>
+    <tr>
+        <th>Cascading Recoverable Rollback</th>
+        <th>Cascadeless Recoverable Rollback</th>
+    </tr>
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <th>T1</th>
+                    <th>T2</th>
+                    <th>T3</th>
+                </tr>
+                <tr>
+                    <td>R(x)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x = x + 1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>W(x)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>R(x)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>x = x + 2</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>W(x)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>R(x)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>x = x + 3</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>W(x)</td>
+                </tr>
+                <tr>
+                    <td>Commit</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Commit</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Commit</td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <th>T1</th>
+                    <th>T2</th>
+                    <th>T3</th>
+                </tr>
+                <tr>
+                    <td>R(x)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x = x + 1</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>W(x)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Commit</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>R(x)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>x = x + 2</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>W(x)</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Commit</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>R(x)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>x = x + 3</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>W(x)</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Commit</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 
-- **Lossless Decomposition:**
-  - Ensures that the original relation can be perfectly reconstructed from the decomposed relations.
-  - R = R1⋈R2⋈R3⋈...Rn
-- **Lossy Decomposition:**
-  - May not preserve all information from the original relation.
-  - R ≠ R1⋈R2⋈R3⋈...Rn
-
-**Note:** Up to 3NF, all decompositions are lossless. After that, decomposition may be either lossy or lossless.
-
-**Dependency Preserving Decomposition:**
-
-The decomposition is dependency preserving if:
-
-(F1 ∪ F2 ∪ ... ∪ Fn $)^+$ = $F^+$
-
-where:
-- F1, F2, ..., Fn  are the functional dependencies derived from the decomposed relations R1, R2, ..., Rn .
-- $F^+$ is the closure of the original functional dependencies \( F \).
